@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/Scripts/python manage.py seed_data)",
+      "Bash(venv/Scripts/python manage.py shell -c ' *)",
+      "Bash(venv/Scripts/python manage.py runserver 8000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000/places/demo/)",
+      "Bash(curl -s \"http://127.0.0.1:8000/api/places/map/\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'총 {len\\(d\\)}개 장소'\\); [print\\(f'  {p[\\\\\"name\\\\\"]} | 미디어 {len\\(p[\\\\\"media\\\\\"]\\)}개'\\) for p in d[:5]]\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/places/demo/)",
+      "Bash(python manage.py runserver)",
+      "Bash(echo \"Server started with PID: $!\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 22052 //PID 2196 //PID 16824 //PID 3348)"
+    ]
+  }
+}

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'places',
 ]
 
@@ -61,7 +62,7 @@ ROOT_URLCONF = 'YogiEoddae.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -127,7 +128,20 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  # 개발 중 브라우저에서 바로 확인용
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
 # .env에서 읽어온 환경 변수들을 장고 설정값으로 등록
 TOUR_API_KEY = env('TOUR_API_KEY')
 NAVER_CLIENT_ID = env('NAVER_CLIENT_ID')
 NAVER_CLIENT_SECRET = env('NAVER_CLIENT_SECRET')
+KAKAO_JS_KEY = env('KAKAO_JS_KEY')
+
+# Kakao Maps SDK 403 방지: Referer 헤더를 크로스 오리진 요청에도 포함
+SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'

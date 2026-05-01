@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('places/', include('places.urls')), # places 앱의 주소 연결
+    path('places/', include('places.urls')),  # 유틸리티 엔드포인트 (fetch, map-test)
+    path('api/', include('places.api_urls')), # DRF REST API
 ]

@@ -1,7 +1,32 @@
 import requests
 from django.conf import settings
 from django.http import JsonResponse
-from .models import Place
+from django.shortcuts import render
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from .models import Place, Media, MediaPlace
+from .serializers import (
+    PlaceSerializer, PlaceMapSerializer,
+    MediaSerializer, MediaDetailSerializer, MediaPlaceSerializer,
+)
+
+
+def place_map_test(request):
+    places = Place.objects.all()
+    return render(request, 'places/map_test.html', {
+        'places': places,
+        'naver_client_id': settings.NAVER_CLIENT_ID,
+    })
+
+
+def demo_view(request):
+    media_list = Media.objects.all().order_by('media_type', 'title')
+    return render(request, 'places/demo.html', {
+        'media_list': media_list,
+        'kakao_js_key': settings.KAKAO_JS_KEY,
+    })
 
 def fetch_and_save_places(request):
     # 1. API 호출 설정
@@ -48,6 +73,7 @@ def fetch_and_save_places(request):
                     'latitude': item['mapy'],
                     'longitude': item['mapx'],
                     'image_url': item.get('firstimage', ''),
+                    'category': item.get('contenttypeid', ''),
                 }
             )
             if created:
@@ -91,3 +117,72 @@ def get_place_list(request):
         {'status': 'success', 'data': place_list},
         json_dumps_params={'ensure_ascii': False}
     )
+
+
+# ── DRF ViewSets ────────────────────────────────────────────────────────────
+
+class PlaceViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    GET /api/places/                     전체 장소 목록
+    GET /api/places/{id}/                장소 상세
+    GET /api/places/?keyword=이태원      이름 검색
+    GET /api/places/?category=12         관광공사 카테고리 필터
+    GET /api/places/?unverified=true     위치 미확정 장소 (퀴즈 대상)
+    """
+    queryset = Place.objects.all().order_by('-created_at')
+    serializer_class = PlaceSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        keyword = self.request.query_params.get('keyword')
+        category = self.request.query_params.get('category')
+        unverified = self.request.query_params.get('unverified')
+
+        if keyword:
+            qs = qs.filter(name__icontains=keyword)
+        if category:
+            qs = qs.filter(category=category)
+        if unverified == 'true':
+            qs = qs.filter(is_verified=False)
+        return qs
+
+    @action(detail=False, methods=['get'], url_path='map')
+    def map_data(self, request):
+        """
+        GET /api/places/map/             전체 촬영지 좌표 + 연결 미디어
+        GET /api/places/map/?media_id=1  특정 미디어 촬영지만
+        """
+        qs = Place.objects.prefetch_related('media_places__media').filter(media_places__isnull=False).distinct()
+        media_id = request.query_params.get('media_id')
+        if media_id:
+            qs = qs.filter(media_places__media_id=media_id)
+        serializer = PlaceMapSerializer(qs, many=True)
+        return Response(serializer.data)
+
+
+class MediaViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    GET /api/media/                      전체 미디어 목록
+    GET /api/media/{id}/                 미디어 상세 + 촬영지 목록
+    GET /api/media/?type=drama           타입 필터 (drama/movie/youtube/etc)
+    GET /api/media/{id}/places/          해당 미디어의 촬영지만 조회
+    """
+    queryset = Media.objects.all().order_by('-created_at')
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return MediaDetailSerializer
+        return MediaSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        media_type = self.request.query_params.get('type')
+        if media_type:
+            qs = qs.filter(media_type=media_type)
+        return qs
+
+    @action(detail=True, methods=['get'])
+    def places(self, request, pk=None):
+        media = self.get_object()
+        media_places = MediaPlace.objects.filter(media=media).select_related('place')
+        return Response(MediaPlaceSerializer(media_places, many=True).data)
