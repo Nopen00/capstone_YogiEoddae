@@ -6,10 +6,11 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Place, Media, MediaPlace
+from .models import Place, Media, MediaPlace, Tag
 from .serializers import (
     PlaceSerializer, PlaceMapSerializer,
     MediaSerializer, MediaDetailSerializer, MediaPlaceSerializer,
+    TagSerializer,
 )
 
 
@@ -144,6 +145,9 @@ class PlaceViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(category=category)
         if unverified == 'true':
             qs = qs.filter(is_verified=False)
+        tag = self.request.query_params.get('tag')
+        if tag:
+            qs = qs.filter(tags__name__icontains=tag)
         return qs
 
     @action(detail=False, methods=['get'], url_path='map')
@@ -179,6 +183,9 @@ class MediaViewSet(viewsets.ReadOnlyModelViewSet):
         media_type = self.request.query_params.get('type')
         if media_type:
             qs = qs.filter(media_type=media_type)
+        tag = self.request.query_params.get('tag')
+        if tag:
+            qs = qs.filter(tags__name__icontains=tag)
         return qs
 
     @action(detail=True, methods=['get'])
@@ -186,3 +193,19 @@ class MediaViewSet(viewsets.ReadOnlyModelViewSet):
         media = self.get_object()
         media_places = MediaPlace.objects.filter(media=media).select_related('place')
         return Response(MediaPlaceSerializer(media_places, many=True).data)
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    GET /api/tags/                   전체 태그 목록
+    GET /api/tags/?category=genre    대분류 필터 (media_type / genre / place_type)
+    """
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        category = self.request.query_params.get('category')
+        if category:
+            qs = qs.filter(category=category)
+        return qs

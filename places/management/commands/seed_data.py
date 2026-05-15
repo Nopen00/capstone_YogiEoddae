@@ -2,8 +2,29 @@ import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from places.models import MediaPlace, Media, Place
+from places.models import MediaPlace, Media, Place, Tag
 
+
+# 기본 태그 데이터 (category, name)
+TAG_DATA = [
+    # 미디어 유형
+    ('media_type', '드라마'),
+    ('media_type', '영화'),
+    ('media_type', '유튜브'),
+    ('media_type', '예능'),
+    # 장르
+    ('genre', '로맨스'),
+    ('genre', '힐링'),
+    ('genre', '액션'),
+    ('genre', '스릴러'),
+    ('genre', '코미디'),
+    ('genre', '감동'),
+    # 장소 유형
+    ('place_type', '음식/음료'),
+    ('place_type', '생활시설'),
+    ('place_type', '문화/역사'),
+    ('place_type', '자연/야외'),
+]
 
 SEED_DATA = [
     {
@@ -13,9 +34,10 @@ SEED_DATA = [
             'year': 2020,
             'description': '이태원을 배경으로 한 청춘 성장 드라마. JTBC 방영.',
         },
+        'media_tags': ['드라마', '로맨스', '감동'],
         'places': [
-            {'keyword': '이태원',  'scene': '박새로이의 포차 거리',          'confidence': 0.9},
-            {'keyword': '노량진',  'scene': '박새로이 고시원 시절 거리',      'confidence': 0.7},
+            {'keyword': '이태원',  'scene': '박새로이의 포차 거리',          'confidence': 0.9,  'place_tags': ['음식/음료']},
+            {'keyword': '노량진',  'scene': '박새로이 고시원 시절 거리',      'confidence': 0.7,  'place_tags': []},
         ],
     },
     {
@@ -25,9 +47,10 @@ SEED_DATA = [
             'year': 2016,
             'description': '쓸쓸하고 찬란하神 도깨비. tvN 방영.',
         },
+        'media_tags': ['드라마', '로맨스', '힐링'],
         'places': [
-            {'keyword': '강릉',     'scene': '도깨비와 은탁이 걷던 해변길',   'confidence': 0.9},
-            {'keyword': '인천 송도', 'scene': '은탁의 등굣길',                'confidence': 0.85},
+            {'keyword': '강릉',      'scene': '도깨비와 은탁이 걷던 해변길',  'confidence': 0.9,  'place_tags': ['자연/야외']},
+            {'keyword': '인천 송도', 'scene': '은탁의 등굣길',                'confidence': 0.85, 'place_tags': []},
         ],
     },
     {
@@ -37,8 +60,9 @@ SEED_DATA = [
             'year': 2019,
             'description': '봉준호 감독. 아카데미 4관왕 수상작.',
         },
+        'media_tags': ['영화', '스릴러', '감동'],
         'places': [
-            {'keyword': '마포',    'scene': '기택네 반지하 골목 일대',        'confidence': 0.8},
+            {'keyword': '마포',    'scene': '기택네 반지하 골목 일대',        'confidence': 0.8,  'place_tags': ['자연/야외']},
         ],
     },
     {
@@ -48,8 +72,9 @@ SEED_DATA = [
             'year': 2019,
             'description': '남북한 로맨스 드라마. tvN 방영.',
         },
+        'media_tags': ['드라마', '로맨스'],
         'places': [
-            {'keyword': '춘천',    'scene': '리정혁과 윤세리의 산책로',       'confidence': 0.75},
+            {'keyword': '춘천',    'scene': '리정혁과 윤세리의 산책로',       'confidence': 0.75, 'place_tags': ['자연/야외']},
         ],
     },
     {
@@ -59,8 +84,9 @@ SEED_DATA = [
             'year': 2015,
             'description': '쌍문동 골목을 배경으로 한 청춘 드라마. tvN 방영.',
         },
+        'media_tags': ['드라마', '힐링', '감동'],
         'places': [
-            {'keyword': '도봉구',  'scene': '쌍문동 골목 주택가',            'confidence': 0.85},
+            {'keyword': '도봉구',  'scene': '쌍문동 골목 주택가',            'confidence': 0.85, 'place_tags': ['자연/야외']},
         ],
     },
 ]
@@ -115,6 +141,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.MIGRATE_HEADING('\n샘플 데이터 생성 시작...\n'))
 
+        # 기본 태그 생성
+        self.stdout.write('  [태그 생성 중...]')
+        tag_cache = {}
+        for category, name in TAG_DATA:
+            tag, _ = Tag.objects.get_or_create(category=category, name=name)
+            tag_cache[name] = tag
+        self.stdout.write(f'  태그 {len(tag_cache)}개 준비 완료\n')
+
         media_created = 0
         place_processed = 0
         link_created = 0
@@ -129,6 +163,11 @@ class Command(BaseCommand):
             self.stdout.write(f"  {status}: [{media.get_media_type_display()}] {media.title}")
             if created:
                 media_created += 1
+
+            # 미디어 태그 연결
+            for tag_name in entry.get('media_tags', []):
+                if tag_name in tag_cache:
+                    media.tags.add(tag_cache[tag_name])
 
             for place_cfg in entry['places']:
                 self.stdout.write(f"      키워드 '{place_cfg['keyword']}' 검색 중...")
@@ -148,6 +187,11 @@ class Command(BaseCommand):
                     if mp_created:
                         link_created += 1
                         self.stdout.write(f"        → {place.name} 연결 완료")
+
+                    # 장소 태그 연결
+                    for tag_name in place_cfg.get('place_tags', []):
+                        if tag_name in tag_cache:
+                            place.tags.add(tag_cache[tag_name])
 
         self.stdout.write(self.style.SUCCESS(
             f'\n완료! 미디어 {media_created}개 생성 | '

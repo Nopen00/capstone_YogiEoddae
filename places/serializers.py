@@ -1,21 +1,31 @@
 from rest_framework import serializers
-from .models import MediaPlace, Place, Media
+from .models import MediaPlace, Place, Media, Tag
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'category', 'name']
 
 
 class PlaceSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+
     class Meta:
         model = Place
         fields = [
             'id', 'content_id', 'name', 'address',
             'latitude', 'longitude', 'image_url',
-            'category', 'is_verified', 'created_at',
+            'category', 'is_verified', 'tags', 'created_at',
         ]
 
 
 class MediaSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+
     class Meta:
         model = Media
-        fields = ['id', 'title', 'media_type', 'year', 'thumbnail_url', 'description', 'created_at']
+        fields = ['id', 'title', 'media_type', 'year', 'thumbnail_url', 'description', 'tags', 'created_at']
 
 
 class MediaPlaceSerializer(serializers.ModelSerializer):

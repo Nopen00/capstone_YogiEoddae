@@ -142,6 +142,9 @@ TOUR_API_KEY = env('TOUR_API_KEY')
 NAVER_CLIENT_ID = env('NAVER_CLIENT_ID')
 NAVER_CLIENT_SECRET = env('NAVER_CLIENT_SECRET')
 KAKAO_JS_KEY = env('KAKAO_JS_KEY')
+ANTHROPIC_API_KEY = env('ANTHROPIC_API_KEY', default='')
+GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
+YOUTUBE_API_KEY = env('YOUTUBE_API_KEY', default='')
 
 # Kakao Maps SDK 403 방지: Referer 헤더를 크로스 오리진 요청에도 포함
 SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'

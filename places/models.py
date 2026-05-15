@@ -1,6 +1,24 @@
 from django.db import models
 
 
+class Tag(models.Model):
+    CATEGORY_CHOICES = [
+        ('media_type', '미디어 유형'),
+        ('genre',      '장르'),
+        ('place_type', '장소 유형'),
+    ]
+
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    name = models.CharField(max_length=50)
+
+    class Meta:
+        unique_together = ('category', 'name')
+        ordering = ['category', 'name']
+
+    def __str__(self):
+        return f'[{self.get_category_display()}] {self.name}'
+
+
 class Place(models.Model):
     CONTENT_TYPES = [
         ('12', '관광지'),
@@ -23,6 +41,7 @@ class Place(models.Model):
     category = models.CharField(max_length=5, choices=CONTENT_TYPES, blank=True, default='')
     # KTO 공식 데이터 = True, YouTube 파싱 등 미확정 = False
     is_verified = models.BooleanField(default=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='places')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -42,6 +61,7 @@ class Media(models.Model):
     year = models.IntegerField(null=True, blank=True)
     thumbnail_url = models.URLField(max_length=500, blank=True, null=True)
     description = models.TextField(blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='media')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

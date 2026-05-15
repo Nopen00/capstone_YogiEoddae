@@ -11,7 +11,10 @@
       "Bash(python manage.py runserver)",
       "Bash(echo \"Server started with PID: $!\")",
       "Bash(netstat -ano)",
-      "Bash(taskkill //F //PID 22052 //PID 2196 //PID 16824 //PID 3348)"
+      "Bash(taskkill //F //PID 22052 //PID 2196 //PID 16824 //PID 3348)",
+      "Bash(venv/Scripts/python manage.py makemigrations)",
+      "Bash(venv/Scripts/python manage.py migrate)",
+      "Bash(venv/Scripts/python manage.py check)"
     ]
   }
 }
