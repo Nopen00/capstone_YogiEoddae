@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>장소 검토 | 요기어따?</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f9fafb; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1f2937; }
+
+    /* ── header ── */
+    header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    header a.back { color: #9ca3af; font-size: 13px; text-decoration: none; white-space: nowrap; }
+    header a.back:hover { color: #4b5563; }
+    .header-info { flex: 1; min-width: 0; }
+    .header-info h1 { font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-info p  { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+    .btn-reextract { flex-shrink: 0; background: #eff6ff; color: #2563eb; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; }
+    .btn-reextract:hover { background: #dbeafe; }
+
+    /* ── layout ── */
+    main { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
+    section { margin-bottom: 36px; }
+    .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .section-title { font-size: 15px; font-weight: 700; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+    .badge-yellow { background: #fef9c3; color: #a16207; }
+    .badge-orange { background: #fff7ed; color: #c2410c; }
+    .badge-green  { background: #dcfce7; color: #166534; }
+    .badge-gray   { background: #f3f4f6; color: #6b7280; }
+    .section-hint { font-size: 13px; color: #9ca3af; }
+
+    /* ── place card ── */
+    .card-list { display: flex; flex-direction: column; gap: 10px; }
+    .place-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 16px 20px; cursor: pointer; transition: border-color 0.15s; }
+    .place-card:hover { border-color: #93c5fd; }
+    .place-card.checked  { border-color: #4ade80; background: #f0fdf4; }
+    .place-card.uncertain-card { border-color: #fed7aa; background: #fffbf5; }
+
+    .card-row { display: flex; align-items: flex-start; gap: 14px; }
+    .card-check { margin-top: 2px; width: 16px; height: 16px; accent-color: #16a34a; flex-shrink: 0; }
+    .card-body { flex: 1; min-width: 0; }
+    .card-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .card-name { font-weight: 600; font-size: 15px; }
+    .tag-kto  { background: #dbeafe; color: #1e40af; font-size: 11px; padding: 1px 7px; border-radius: 999px; }
+    .tag-unverified { background: #f3f4f6; color: #6b7280; font-size: 11px; padding: 1px 7px; border-radius: 999px; }
+    .tag-conf { font-size: 11px; color: #9ca3af; }
+    .card-addr { font-size: 13px; color: #6b7280; margin-top: 3px; }
+    .card-reason { font-size: 13px; color: #9ca3af; font-style: italic; margin-top: 4px; }
+    .conf-bar-wrap { flex-shrink: 0; width: 72px; }
+    .conf-bar-bg { background: #f3f4f6; border-radius: 999px; height: 6px; }
+    .conf-bar-fill { background: #4ade80; height: 6px; border-radius: 999px; }
+    .conf-label { font-size: 11px; color: #9ca3af; text-align: right; margin-top: 2px; }
+
+    /* uncertain card extras */
+    .warn-label { font-size: 12px; color: #ea580c; font-weight: 500; margin-top: 6px; }
+    .btn-edit { margin-top: 8px; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-edit:hover { background: #ffedd5; }
+
+    /* ── approve form buttons ── */
+    .approve-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .btn-save { flex: 1; background: #16a34a; color: #fff; border: none; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn-save:hover { background: #15803d; }
+    .btn-sel { background: #f3f4f6; color: #374151; border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; cursor: pointer; }
+    .btn-sel:hover { background: #e5e7eb; }
+
+    /* ── approved / rejected list ── */
+    .simple-card { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; padding: 12px 18px; display: flex; align-items: center; gap: 10px; }
+    .simple-card.approved-card { border-color: #bbf7d0; }
+    .simple-card.rejected-card { opacity: 0.5; }
+    .icon-ok { color: #22c55e; font-size: 18px; }
+    .icon-no { color: #9ca3af; font-size: 18px; }
+    .simple-name { font-weight: 500; font-size: 14px; }
+    .simple-addr { font-size: 13px; color: #9ca3af; margin-left: 8px; }
+    .simple-conf { font-size: 12px; color: #9ca3af; margin-left: auto; }
+
+    /* ── empty state ── */
+    .empty { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 32px; text-align: center; color: #9ca3af; font-size: 14px; }
+
+    /* ── 승인 취소 버튼 ── */
+    .btn-revoke { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+    .btn-revoke:hover { background: #ffe4e6; }
+
+    /* ── 확인 모달 ── */
+    .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box { background: #fff; border-radius: 14px; padding: 28px 28px 24px; width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); text-align: center; }
+    .confirm-icon { font-size: 36px; margin-bottom: 10px; }
+    .confirm-title { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 6px; }
+    .confirm-desc { font-size: 13px; color: #6b7280; margin-bottom: 20px; line-height: 1.5; }
+    .confirm-btns { display: flex; gap: 10px; }
+    .btn-confirm-cancel { flex: 1; background: #f3f4f6; color: #374151; border: none; border-radius: 10px; padding: 11px; font-size: 14px; cursor: pointer; }
+    .btn-confirm-cancel:hover { background: #e5e7eb; }
+    .btn-confirm-ok { flex: 1; background: #be123c; color: #fff; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-confirm-ok:hover { background: #9f1239; }
+
+    /* ── modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 16px; width: 100%; max-width: 480px; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+    .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .modal-sub { font-size: 13px; color: #9ca3af; margin-bottom: 20px; }
+    .field-label { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 5px; display: block; }
+    .field-input { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 9px 13px; font-size: 14px; outline: none; }
+    .field-input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.15); }
+    .field-wrap { margin-bottom: 14px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-cancel { flex: 1; background: #f3f4f6; color: #374151; border: none; border-radius: 10px; padding: 11px; font-size: 14px; cursor: pointer; }
+    .btn-cancel:hover { background: #e5e7eb; }
+    .btn-confirm { flex: 2; background: #ea580c; color: #fff; border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-confirm:hover { background: #c2410c; }
+    .modal-msg { font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
+    .modal-msg.ok  { color: #16a34a; }
+    .modal-msg.err { color: #dc2626; }
+
+    /* 검색 버튼 + 결과 */
+    .name-row { display: flex; gap: 8px; }
+    .name-row .field-input { flex: 1; }
+    .btn-search { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; border-radius: 8px; padding: 9px 14px; font-size: 13px; white-space: nowrap; cursor: pointer; }
+    .btn-search:hover { background: #e5e7eb; }
+    .btn-search:disabled { opacity: 0.5; cursor: default; }
+    .search-results { margin-top: 6px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; display: none; }
+    .search-results.show { display: block; }
+    .result-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f3f4f6; transition: background 0.1s; }
+    .result-item:last-child { border-bottom: none; }
+    .result-item:hover { background: #eff6ff; }
+    .result-name { font-size: 14px; font-weight: 600; color: #1f2937; }
+    .result-addr { font-size: 12px; color: #6b7280; margin-top: 2px; }
+    .result-empty { padding: 12px 14px; font-size: 13px; color: #9ca3af; text-align: center; }
+    .result-searching { padding: 12px 14px; font-size: 13px; color: #6b7280; text-align: center; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/places/extract/history/" class="back">← 목록</a>
+  <div class="header-info">
+    <h1>📍 {{ media.title }}</h1>
+    <p>{{ media.get_media_type_display }}</p>
+  </div>
+  <button type="button" class="btn-reextract" id="geocodeBtn"
+    onclick="geocodeAll()" style="margin-right:8px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0;">
+    📍 주소 일괄갱신
+  </button>
+  <a href="/places/extract/?media_id={{ media.pk }}" class="btn-reextract">🔄 재추출</a>
+</header>
+
+<main>
+
+  <!-- ① 검토 대기 (KTO 확인된 장소) -->
+  {% if inferred_verified %}
+  <section>
+    <div class="section-header">
+      <h2 class="section-title">검토 대기</h2>
+      <span class="badge badge-yellow">{{ inferred_verified|length }}건</span>
+      <p class="section-hint">체크한 장소가 <strong>승인</strong>됩니다. 체크 해제 시 반려됩니다.</p>
+    </div>
+
+    <form method="POST" id="approveForm">
+      {% csrf_token %}
+      {% for mp in inferred_verified %}<input type="hidden" name="form_pks" value="{{ mp.pk }}">{% endfor %}
+      <div class="card-list">
+        {% for mp in inferred_verified %}
+        <label class="place-card checked" id="card-v-{{ mp.pk }}">
+          <div class="card-row">
+            <input type="checkbox" name="approved" value="{{ mp.pk }}" checked class="card-check"
+              onchange="this.closest('.place-card').classList.toggle('checked', this.checked)">
+            <div class="card-body">
+              <div class="card-name-row">
+                <span class="card-name">{{ mp.place.name }}</span>
+                <span class="tag-kto">KTO 확인</span>
+                <span class="tag-conf">신뢰도 {{ mp.confidence_score|floatformat:0 }}%</span>
+              </div>
+              {% if mp.place.address %}<p class="card-addr">📍 {{ mp.place.address }}</p>{% endif %}
+              {% if mp.ai_reason %}<p class="card-reason">{{ mp.ai_reason }}</p>{% endif %}
+            </div>
+            <div class="conf-bar-wrap">
+              <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:{{ mp.confidence_score|floatformat:0 }}%"></div></div>
+              <p class="conf-label">{{ mp.confidence_score|floatformat:0 }}%</p>
+            </div>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="approve-actions">
+        <button type="submit" class="btn-save">✓ 선택 저장 (체크=승인 / 미체크=반려)</button>
+        <button type="button" class="btn-sel" onclick="setAll(true)">전체 선택</button>
+        <button type="button" class="btn-sel" onclick="setAll(false)">전체 해제</button>
+      </div>
+    </form>
+  </section>
+  {% endif %}
+
+  <!-- ② 추가 확인 필요 (미확정 장소) -->
+  {% if inferred_uncertain %}
+  <section>
+    <div class="section-header">
+      <h2 class="section-title">⚠️ 추가 확인 필요</h2>
+      <span class="badge badge-orange">{{ inferred_uncertain|length }}건</span>
+      <p class="section-hint">자막에 정확한 장소명이 없어 위치가 불확실합니다. 수정 후 승인하세요.</p>
+    </div>
+
+    <form method="POST" id="uncertainForm">
+      {% csrf_token %}
+      {% for mp in inferred_uncertain %}<input type="hidden" name="form_pks" value="{{ mp.pk }}">{% endfor %}
+      <div class="card-list">
+        {% for mp in inferred_uncertain %}
+        <label class="place-card uncertain-card" id="card-u-{{ mp.pk }}">
+          <div class="card-row">
+            <input type="checkbox" name="approved" value="{{ mp.pk }}" class="card-check"
+              onchange="this.closest('.place-card').classList.toggle('checked', this.checked)">
+            <div class="card-body">
+              <div class="card-name-row">
+                <span class="card-name" id="name-{{ mp.place.pk }}">{{ mp.place.name }}</span>
+                <span class="tag-unverified">미확정</span>
+                <span class="tag-conf">신뢰도 {{ mp.confidence_score|floatformat:0 }}%</span>
+              </div>
+              <p class="card-addr" id="addr-{{ mp.place.pk }}">{% if mp.place.address %}📍 {{ mp.place.address }}{% else %}주소 미확인{% endif %}</p>
+              {% if mp.ai_reason %}<p class="card-reason">{{ mp.ai_reason }}</p>{% endif %}
+              <p class="warn-label">위치 추정 필요 — 수정 후 승인하세요</p>
+              <button type="button" class="btn-edit" onclick="openModal(event, {{ mp.place.pk }}, '{{ mp.place.name|escapejs }}', '{{ mp.place.address|escapejs }}')">✏️ 위치 수정</button>
+            </div>
+            <div class="conf-bar-wrap">
+              <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:{{ mp.confidence_score|floatformat:0 }}%; background:#fb923c"></div></div>
+              <p class="conf-label">{{ mp.confidence_score|floatformat:0 }}%</p>
+            </div>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="approve-actions">
+        <button type="submit" class="btn-save" style="background:#ea580c">✓ 선택 저장 (체크=승인 / 미체크=반려)</button>
+        <button type="button" class="btn-sel" onclick="setAllUncertain(true)">전체 선택</button>
+        <button type="button" class="btn-sel" onclick="setAllUncertain(false)">전체 해제</button>
+      </div>
+    </form>
+  </section>
+  {% endif %}
+
+  {% if not inferred_verified and not inferred_uncertain %}
+  <div class="empty">검토 대기 중인 장소가 없습니다.</div>
+  {% endif %}
+
+  <!-- ③ 승인된 장소 -->
+  {% if approved %}
+  <section>
+    <div class="section-header">
+      <h2 class="section-title">✅ 승인된 장소</h2>
+      <span class="badge badge-green">{{ approved|length }}건</span>
+    </div>
+    <div class="card-list">
+      {% for mp in approved %}
+      <div class="simple-card approved-card" id="approved-row-{{ mp.pk }}">
+        <span class="icon-ok">✓</span>
+        <span class="simple-name" id="name-{{ mp.place.pk }}">{{ mp.place.name }}</span>
+        {% if mp.place.address %}<span class="simple-addr" id="addr-{{ mp.place.pk }}">{{ mp.place.address }}</span>{% endif %}
+        <span class="simple-conf">{{ mp.confidence_score|floatformat:0 }}%</span>
+        <button type="button" class="btn-edit" style="margin-top:0; margin-left:8px;"
+          onclick="openModal(event, {{ mp.place.pk }}, '{{ mp.place.name|escapejs }}', '{{ mp.place.address|escapejs }}')">✏️</button>
+        <button type="button" class="btn-revoke"
+          onclick="openRevoke({{ mp.pk }}, '{{ mp.place.name|escapejs }}')">✕ 승인 취소</button>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ④ 반려된 장소 -->
+  {% if rejected %}
+  <section>
+    <div class="section-header">
+      <h2 class="section-title">✕ 반려된 장소</h2>
+      <span class="badge badge-gray">{{ rejected|length }}건</span>
+    </div>
+    <div class="card-list">
+      {% for mp in rejected %}
+      <div class="simple-card rejected-card">
+        <span class="icon-no">✕</span>
+        <span class="simple-name">{{ mp.place.name }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</main>
+
+<!-- 위치 수정 모달 -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 class="modal-title">📍 위치 수정</h2>
+    <p class="modal-sub" id="modalSub">AI가 추정한 장소입니다. 정확한 명칭과 주소로 수정하세요.</p>
+
+    <input type="hidden" id="modalPlaceId">
+
+    <div class="field-wrap">
+      <label class="field-label">장소명</label>
+      <div class="name-row">
+        <input type="text" id="modalName" class="field-input" placeholder="정확한 장소명 입력">
+        <button type="button" class="btn-search" id="searchBtn" onclick="searchPlace()">🔍 검색</button>
+      </div>
+      <!-- KTO 검색 결과 -->
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <div class="field-wrap">
+      <label class="field-label">주소</label>
+      <input type="text" id="modalAddr" class="field-input" placeholder="예: 부산 북구 구포동 123">
+    </div>
+
+    <p class="modal-msg" id="modalMsg"></p>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-confirm" onclick="savePlace()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 승인 취소 확인 모달 -->
+<div class="confirm-overlay" id="revokeModal">
+  <div class="confirm-box" onclick="event.stopPropagation()">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">승인을 취소하시겠습니까?</div>
+    <div class="confirm-desc" id="revokeDesc">이 장소가 검토 대기 상태로 돌아갑니다.</div>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeRevoke()">취소</button>
+      <button class="btn-confirm-ok" onclick="doRevoke()">승인 취소</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CSRF = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+
+  function setAll(checked) {
+    document.querySelectorAll('#approveForm input[type=checkbox]').forEach(c => {
+      c.checked = checked;
+      c.closest('.place-card').classList.toggle('checked', checked);
+    });
+  }
+  function setAllUncertain(checked) {
+    document.querySelectorAll('#uncertainForm input[type=checkbox]').forEach(c => {
+      c.checked = checked;
+      c.closest('.place-card').classList.toggle('checked', checked);
+    });
+  }
+
+  function openModal(e, placeId, name, addr) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('modalPlaceId').value = placeId;
+    document.getElementById('modalName').value = name;
+    document.getElementById('modalAddr').value = addr;
+    document.getElementById('modalMsg').textContent = '';
+    document.getElementById('modalMsg').className = 'modal-msg';
+    _selectedLat = null; _selectedLng = null;
+    closeSearchResults();
+    document.getElementById('editModal').classList.add('open');
+    document.getElementById('modalName').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('open');
+    closeSearchResults();
+  }
+
+  function closeSearchResults() {
+    const el = document.getElementById('searchResults');
+    el.classList.remove('show');
+    el.innerHTML = '';
+  }
+
+  async function searchPlace() {
+    const name = document.getElementById('modalName').value.trim();
+    if (!name) return;
+
+    const btn = document.getElementById('searchBtn');
+    const resultsEl = document.getElementById('searchResults');
+    btn.disabled = true; btn.textContent = '검색 중...';
+    resultsEl.innerHTML = '<div class="result-searching">🔍 KTO에서 검색 중...</div>';
+    resultsEl.classList.add('show');
+
+    try {
+      const res = await fetch(`/places/place/search/?q=${encodeURIComponent(name)}`);
+      const data = await res.json();
+
+      if (!data.results || data.results.length === 0) {
+        resultsEl.innerHTML = '<div class="result-empty">검색 결과가 없습니다.</div>';
+      } else {
+        resultsEl.innerHTML = data.results.map(r => {
+          const src = r.source === 'kakao' ? ' <span style="font-size:11px;color:#f59e0b">카카오</span>' : ' <span style="font-size:11px;color:#2563eb">KTO</span>';
+          return `<div class="result-item" onclick="selectResult('${r.name.replace(/'/g,"\\'")}', '${r.address.replace(/'/g,"\\'")}', ${r.lat}, ${r.lng})">
+            <div class="result-name">${r.name}${src}</div>
+            <div class="result-addr">📍 ${r.address}</div>
+          </div>`;
+        }).join('');
+      }
+    } catch {
+      resultsEl.innerHTML = '<div class="result-empty">검색 실패 (네트워크 오류)</div>';
+    }
+    btn.disabled = false; btn.textContent = '🔍 검색';
+  }
+
+  // 선택된 좌표를 hidden 필드에 보관
+  let _selectedLat = null, _selectedLng = null;
+
+  function selectResult(name, addr, lat, lng) {
+    document.getElementById('modalName').value = name;
+    document.getElementById('modalAddr').value = addr;
+    _selectedLat = lat || null;
+    _selectedLng = lng || null;
+    closeSearchResults();
+    document.getElementById('modalAddr').focus();
+  }
+
+  // 모달 바깥 클릭 시 닫기
+  document.getElementById('editModal').addEventListener('click', closeModal);
+
+  // 저장
+  async function savePlace() {
+    const placeId = document.getElementById('modalPlaceId').value;
+    const name    = document.getElementById('modalName').value.trim();
+    const addr    = document.getElementById('modalAddr').value.trim();
+    const msgEl   = document.getElementById('modalMsg');
+
+    if (!name) { msgEl.textContent = '장소명을 입력하세요.'; msgEl.className = 'modal-msg err'; return; }
+
+    const btn = document.querySelector('.btn-confirm');
+    btn.disabled = true; btn.textContent = '저장 중...';
+
+    try {
+      const res = await fetch(`/places/place/${placeId}/update/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+        body: JSON.stringify({
+          name, address: addr,
+          lat: _selectedLat, lng: _selectedLng,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const nameEl = document.getElementById(`name-${placeId}`);
+        let   addrEl = document.getElementById(`addr-${placeId}`);
+        if (nameEl) nameEl.textContent = data.name;
+        if (data.address) {
+          if (addrEl) {
+            addrEl.textContent = '📍 ' + data.address;
+          } else if (nameEl) {
+            const span = document.createElement('span');
+            span.id = `addr-${placeId}`;
+            span.className = 'simple-addr';
+            span.textContent = data.address;
+            nameEl.insertAdjacentElement('afterend', span);
+          }
+        }
+        if (data.has_coords) {
+          msgEl.textContent = '저장 완료 ✓ 지도 좌표 확정 — 지도에 표시됩니다.';
+        } else {
+          msgEl.textContent = '저장 완료. (좌표 미확인 — 지도 미표시)';
+        }
+        msgEl.className = 'modal-msg ok';
+        setTimeout(closeModal, 1200);
+      } else {
+        msgEl.textContent = data.error || '저장 실패'; msgEl.className = 'modal-msg err';
+      }
+    } catch {
+      msgEl.textContent = '네트워크 오류'; msgEl.className = 'modal-msg err';
+    }
+    btn.disabled = false; btn.textContent = '저장';
+  }
+
+  document.getElementById('modalAddr').addEventListener('keydown', e => { if (e.key === 'Enter') savePlace(); });
+  document.getElementById('modalName').addEventListener('keydown', e => { if (e.key === 'Enter') searchPlace(); });
+
+  /* ── 승인 취소 ── */
+  let _revokeMpId = null;
+
+  function openRevoke(mpId, name) {
+    _revokeMpId = mpId;
+    document.getElementById('revokeDesc').textContent =
+      `"${name}" 장소가 검토 대기 상태로 돌아갑니다.`;
+    document.getElementById('revokeModal').classList.add('open');
+  }
+
+  function closeRevoke() {
+    document.getElementById('revokeModal').classList.remove('open');
+    _revokeMpId = null;
+  }
+
+  document.getElementById('revokeModal').addEventListener('click', closeRevoke);
+
+  async function doRevoke() {
+    if (!_revokeMpId) return;
+    const btn = document.querySelector('.btn-confirm-ok');
+    btn.disabled = true; btn.textContent = '처리 중...';
+    try {
+      const res = await fetch(`/places/mediaplace/${_revokeMpId}/revoke/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF },
+      });
+      const data = await res.json();
+      if (data.ok) {
+        // 카드 즉시 제거
+        const row = document.getElementById(`approved-row-${_revokeMpId}`);
+        if (row) row.remove();
+        closeRevoke();
+      }
+    } catch {
+      btn.disabled = false; btn.textContent = '승인 취소';
+    }
+  }
+
+  async function geocodeAll() {
+    const btn = document.getElementById('geocodeBtn');
+    btn.disabled = true; btn.textContent = '갱신 중...';
+    try {
+      const res = await fetch('/places/extract/review/{{ media.pk }}/geocode/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF },
+      });
+      const data = await res.json();
+      if (data.ok) {
+        btn.textContent = `✓ ${data.updated}건 갱신 완료`;
+        if (data.updated > 0) setTimeout(() => location.reload(), 1000);
+      }
+    } catch {
+      btn.textContent = '갱신 실패';
+    }
+    btn.disabled = false;
+  }
+</script>
+
+</body>
+</html>

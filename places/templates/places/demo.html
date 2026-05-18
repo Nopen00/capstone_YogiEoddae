@@ -302,9 +302,14 @@
   /* ── 카카오 마커 ───────────────────────────────── */
   function drawKakaoOverlays(places, mediaId) {
     var bounds = new kakao.maps.LatLngBounds();
+    var pinned = 0;
     places.forEach(function(place) {
-      var pos = new kakao.maps.LatLng(parseFloat(place.latitude), parseFloat(place.longitude));
+      var lat = parseFloat(place.latitude);
+      var lng = parseFloat(place.longitude);
+      if (!lat || !lng) return;   // 좌표 없는 장소 스킵
+      var pos = new kakao.maps.LatLng(lat, lng);
       bounds.extend(pos);
+      pinned++;
       var mi = getMediaInfo(place, mediaId);
 
       var el = document.createElement('div');
@@ -316,8 +321,8 @@
       ov.setMap(kakaoMap);
       kakaoOverlays.push(ov);
     });
-    kakaoMap.setBounds(bounds);
-    setInfoPanel('마커를 클릭하면 장소 정보가 표시됩니다.');
+    if (pinned > 0) kakaoMap.setBounds(bounds);
+    setInfoPanel(pinned > 0 ? '마커를 클릭하면 장소 정보가 표시됩니다.' : '좌표가 확인된 장소가 없습니다.');
   }
 
   function clearKakaoOverlays() {

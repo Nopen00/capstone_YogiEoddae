@@ -54,7 +54,9 @@ class PlaceMapSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'address', 'latitude', 'longitude', 'image_url', 'media']
 
     def get_media(self, obj):
-        media_places = obj.media_places.select_related('media').all()
+        media_places = obj.media_places.filter(
+            status='admin_approved'
+        ).select_related('media')
         return MediaBriefSerializer(media_places, many=True).data
 
 

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>요기어따? 관리 포털</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f9fafb; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+    header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 24px; }
+    header h1 { font-size: 22px; font-weight: 700; color: #1f2937; }
+    header h1 span { color: #2563eb; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+    .stat-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px; text-align: center; }
+    .stat-card.yellow { border-color: #fcd34d; }
+    .stat-card.green  { border-color: #6ee7b7; }
+    .stat-card.blue   { border-color: #93c5fd; }
+    .stat-num { font-size: 28px; font-weight: 700; color: #1f2937; }
+    .stat-num.yellow { color: #f59e0b; }
+    .stat-num.green  { color: #059669; }
+    .stat-num.blue   { color: #2563eb; }
+    .stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .card { background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; padding: 32px; text-decoration: none; display: block; transition: box-shadow 0.2s, border-color 0.2s; }
+    .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .card.indigo:hover { border-color: #818cf8; }
+    .card.green:hover  { border-color: #4ade80; }
+    .card.yellow:hover { border-color: #fbbf24; }
+    .card-icon { font-size: 36px; margin-bottom: 16px; }
+    .card-title { font-size: 18px; font-weight: 700; color: #1f2937; }
+    .card.indigo:hover .card-title { color: #4f46e5; }
+    .card.green:hover  .card-title { color: #16a34a; }
+    .card.yellow:hover .card-title { color: #d97706; }
+    .card-desc { font-size: 13px; color: #6b7280; margin-top: 8px; }
+
+    .badge { display: inline-block; background: #fef9c3; color: #a16207; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 4px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🍿 요기어따? <span>관리 포털</span></h1>
+  </header>
+
+  <main>
+
+    <div class="stats">
+      <div class="stat-card">
+        <p class="stat-num">{{ media_count }}</p>
+        <p class="stat-label">등록 미디어</p>
+      </div>
+      <div class="stat-card yellow">
+        <p class="stat-num yellow">{{ pending_count }}</p>
+        <p class="stat-label">검토 대기</p>
+      </div>
+      <div class="stat-card green">
+        <p class="stat-num green">{{ approved_count }}</p>
+        <p class="stat-label">관리자 승인</p>
+      </div>
+      <div class="stat-card blue">
+        <p class="stat-num blue">{{ quiz_count }}</p>
+        <p class="stat-label">퀴즈 확정</p>
+      </div>
+    </div>
+
+    <div class="cards">
+
+      <a href="/places/demo/" class="card indigo">
+        <div class="card-icon">🗺️</div>
+        <h2 class="card-title">지도 보기</h2>
+        <p class="card-desc">카카오 지도로 미디어별 촬영지 확인</p>
+      </a>
+
+      <a href="/places/extract/" class="card green">
+        <div class="card-icon">🎬</div>
+        <h2 class="card-title">장소 추출</h2>
+        <p class="card-desc">YouTube 영상에서 AI로 촬영 장소 추출</p>
+      </a>
+
+      <a href="/places/extract/history/" class="card yellow">
+        <div class="card-icon">📋</div>
+        <h2 class="card-title">검토 현황</h2>
+        <p class="card-desc">
+          AI 추론 결과 검토 및 장소 승인
+          {% if pending_count > 0 %}
+          <span class="badge">{{ pending_count }}건 대기</span>
+          {% endif %}
+        </p>
+      </a>
+
+    </div>
+  </main>
+
+</body>
+</html>

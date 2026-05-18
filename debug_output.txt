@@ -1,0 +1,93 @@
+﻿.\venv\Scripts\python.exe : C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\googl
+e\api_core\_python_version_support.py:242: FutureWarning: You are using a non-supported Python version (3.9.12). Google
+ will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Pyth
+on version, or at least Python 3.10, and then update google.api_core.
+At line:1 char:70
++ ... ogiEoddae"; .\venv\Scripts\python.exe manage.py fetch_youtube_place - ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\Nopen\...oogle.api_core.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  warnings.warn(message, FutureWarning)
+C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\google\auth\__init__.py:54: Futur
+eWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fix
+es on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then updat
+e google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\google\oauth2\__init__.py:40: Fut
+ureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug f
+ixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then upd
+ate google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+
+[YouTube ��� ���� / Gemini] https://www.youtube.com/watch?v=GsictFeZmaw (dry-run)
+  [1/4] ���� ��Ÿ������ ���� ��...
+        ����: ������ �ڰ�ġ���� ������?? �������� ȸ ������ '����'���ϴ�
+  [2/4] ��� ���� ��...
+        ��� 20�� ����
+  [3/4] �ڸ� ���� ��...
+        �ڸ� ������ (11126��)
+  [4/4] Gemini ��� �߷� ��...
+
+������������������������������������������������������������������������������������������������������������������������
+[DEBUG] ������ ���� ������
+������������������������������������������������������������������������������������������������������������������������
+[����]
+������ �ڰ�ġ���� ������?? �������� ȸ ������ '����'���ϴ�
+[���� ��ü]
+#����Ʈ #�����꼺 #�������� #���ٸ� #ȸ
+�����е��� �׷��� ã���ô� �ʽ� ����!
+�������� �ѹ� �ٽ� ����� �������ϴ�,,,
+��,,,�ƾ�,,, ������ �ʽ����� ���ư��� �ȵȴ�!!
+ä���� ���� �����ϴ�!!!
+������ �ູ������ �����Դϴ�
+�ٵ� �ǰ��Ͻð� ������ �ູ�Ͻʽÿ�~!!
+�����մϴ�!!!
+.
+00:00 �ʽ��̶� �����ΰ�
+01:20 �ʽɰԽ�Ʈ
+04:00 �������� �������
+08:26 ��-��
+12:07 ���� Ƚ��
+20:42 ���� ����
+24:35 ��~!
+[�±�]
+����Ʈ, ������Ʃ��, �λ����, �λ꿩��, �����꼺, �������, ��������, �����ٸ�, ���ٸ�ȸ, �λ�Ƚ��, �λ������θ���, �ڰ�ġ����, �ʽ�, ��Ʃ���ʽ�, ����, ����, �̶�, ����, �Թ�, VLOG, �ϻ�, �λ������, ������Ƚ��, ��������, �λ���ø���, ��������, �濪��
+[ä�θ�]
+����Ʈ
+Traceback (most recent call last):
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\django\core\management\__
+init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\django\core\management\__
+init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\django\core\management\ba
+se.py", line 412, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\django\core\management\ba
+se.py", line 458, in execute
+    output = self.handle(*args, **options)
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\places\management\commands\fetch_youtube_place.p
+y", line 336, in handle
+    self.stdout.write(f'[�ڸ� ��ü ({len(transcript)}��)]\n{transcript or "(����)"}\n')
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\django\core\management\ba
+se.py", line 180, in write
+    self._out.write(style_func(msg))
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\colorama\ansitowin32.py",
+ line 47, in write
+    self.__convertor.write(text)
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\colorama\ansitowin32.py",
+ line 177, in write
+    self.write_and_convert(text)
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\colorama\ansitowin32.py",
+ line 205, in write_and_convert
+    self.write_plain_text(text, cursor, len(text))
+  File "C:\Users\Nopen\Desktop\LLTTYY\4-1\capstone\capstone_YogiEoddae\venv\lib\site-packages\colorama\ansitowin32.py",
+ line 210, in write_plain_text
+    self.wrapped.write(text[start:end])
+UnicodeEncodeError: 'cp949' codec can't encode character '\u0baa' in position 11115: illegal multibyte sequence

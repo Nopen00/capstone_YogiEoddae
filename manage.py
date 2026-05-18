@@ -6,6 +6,14 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    # Windows cp949 터미널에서 한글 깨짐 방지
+    if hasattr(sys.stdout, 'reconfigure'):
+        try:
+            sys.stdout.reconfigure(encoding='utf-8')
+            sys.stderr.reconfigure(encoding='utf-8')
+        except Exception:
+            pass
+
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'YogiEoddae.settings')
     try:
         from django.core.management import execute_from_command_line

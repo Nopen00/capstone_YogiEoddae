@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from places.views import index_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('places/', include('places.urls')),  # 유틸리티 엔드포인트 (fetch, map-test)
-    path('api/', include('places.api_urls')), # DRF REST API
+    path('',        index_view,                name='index'),
+    path('admin/',  admin.site.urls),
+    path('places/', include('places.urls')),
+    path('api/',    include('places.api_urls')),
 ]

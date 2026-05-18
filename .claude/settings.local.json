@@ -14,7 +14,11 @@
       "Bash(taskkill //F //PID 22052 //PID 2196 //PID 16824 //PID 3348)",
       "Bash(venv/Scripts/python manage.py makemigrations)",
       "Bash(venv/Scripts/python manage.py migrate)",
-      "Bash(venv/Scripts/python manage.py check)"
+      "Bash(venv/Scripts/python manage.py check)",
+      "Bash(venv\\\\Scripts\\\\python.exe manage.py fetch_youtube_place --url \"https://www.youtube.com/watch?v=GsictFeZmaw\" --media-title \"테스트영상\" --ai gemini --dry-run)",
+      "PowerShell(cd \"c:\\\\Users\\\\Nopen\\\\Desktop\\\\LLTTYY\\\\4-1\\\\capstone\\\\capstone_YogiEoddae\"; $env:PYTHONIOENCODING = \"utf-8\"; .\\\\venv\\\\Scripts\\\\python.exe manage.py fetch_youtube_place --url \"https://www.youtube.com/watch?v=GsictFeZmaw\" --media-title \"테스트영상\" --ai gemini --dry-run 2>&1 | Select-String -NotMatch \"FutureWarning|warnings.warn|site-packages|api_core\")",
+      "Bash(python manage.py migrate)",
+      "Bash(venv\\\\Scripts\\\\python.exe manage.py migrate)"
     ]
   }
 }
